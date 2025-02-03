@@ -140,6 +140,7 @@ Proof.
             inversion H2. destruct x. inversion H2.
             change (x.+2) with (2 + x). rewrite expnD.
             change (2^2) with 4. clear. lia.
+        (* We know that 2^x = 1 (mod 2^x - 1) *)
         pose proof (pow2n_1_modsub1 x ltac:(lia)).
         assert (2^n - 1 == 0 %[mod 2^x - 1]). {
             apply pow_under_mod with (k := n%/x) in H6.
@@ -151,6 +152,7 @@ Proof.
                 inversion H2.
             lia. lia.
         }
+        (* Now show that 2^x -1 divides 2^n - 1 by the above subproof *)
         epose proof (eqP) (x := (2^n - 1) %% (2^x - 1)) 
             (y := 0 %% (2^x - 1)).
         inversion H8. clear H8 H10.
