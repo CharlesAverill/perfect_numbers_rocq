@@ -133,7 +133,9 @@ Proof.
         (* We know that 2^x = 1 (mod 2^x - 1) *)
         pose proof (pow2n_1_modsub1 x ltac:(lia)).
         assert (2^n - 1 == 0 %[mod 2^x - 1]). {
+						(* raise both sides of 2^x = 1 to n/x *)
             apply pow_under_mod with (k := n%/x) in H6.
+						(* simplify *)
             rewrite exp1n in H6.
             replace ((2^x)^(n%/x)) with (2^n) in H6.
             rewrite add_bs_mod => //. lia.
