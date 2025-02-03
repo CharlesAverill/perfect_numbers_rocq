@@ -1,6 +1,19 @@
 From Coq Require Import ssreflect ssrfun ssrbool Zify.
 From mathcomp Require Import eqtype ssrnat div prime zify.
 
+Lemma eq_eqb_same_mod : forall a b m,
+    (a = b %[mod m]) <-> (a == b %[mod m]).
+Proof.
+    intros. split; intro.
+    {
+        intros. pose proof eqP (x := a %% m) (y := b %% m).
+        inversion H0. reflexivity. contradiction.
+    } {
+        intros. pose proof eqP (x := a %% m) (y := b %% m).
+        inversion H0. assumption. rewrite H in H1. inversion H1.
+    }
+Qed.
+
 Lemma subn_0_r : forall n,
     n - 0 = n.
 Proof. lia. Qed.
@@ -11,31 +24,8 @@ Lemma pow2n_1_modsub1 : forall n,
 Proof.
     intros. replace (2^n) with ((2^n - 1) + 1) at 1 by lia.
     rewrite addnC.
-    epose proof eqP (x := (1 + (2^n - 1)) %% (2^n - 1)) (y := 1 %% (2^n - 1)).
-    inversion H0. reflexivity.
-    rewrite modnDr in H1. lia.
-Qed.
-
-Lemma eqb_eq_mod : forall a b m,
-    a == b %[mod m] -> a = b %[mod m].
-Proof.
-    intros. pose proof eqP (x := a %% m) (y := b %% m).
-    inversion H0. assumption. rewrite H in H1. inversion H1.
-Qed.
-
-Lemma eq_eqb_mod : forall a b m,
-    a = b %[mod m] -> a == b %[mod m].
-Proof.
-    intros. pose proof eqP (x := a %% m) (y := b %% m).
-    inversion H0. reflexivity. contradiction.
-Qed.
-
-Lemma eq_eqb_same_mod : forall a b m,
-    (a = b %[mod m]) <-> (a == b %[mod m]).
-Proof.
-    intros. split; intro.
-        now apply eq_eqb_mod.
-        now apply eqb_eq_mod.
+    apply eq_eqb_same_mod.
+    rewrite modnDr. lia.
 Qed.
 
 Lemma modnM : forall a b c d m,
@@ -153,12 +143,8 @@ Proof.
             lia. lia.
         }
         (* Now show that 2^x -1 divides 2^n - 1 by the above subproof *)
-        epose proof (eqP) (x := (2^n - 1) %% (2^x - 1)) 
-            (y := 0 %% (2^x - 1)).
-        inversion H8. clear H8 H10.
-        rewrite eqn_mod_dvd in H9.
-        by rewrite subn_0_r in H9. constructor.
-        rewrite H7 in H9. inversion H9.
+        rewrite eqn_mod_dvd in H7.
+        by rewrite subn_0_r in H7. constructor.
     } destruct H4 as (k & H5 & H6).
     (* If 2^n - 1 has a factor, we have a contradiction because 
        by the original theorem statement, we have assumed that
